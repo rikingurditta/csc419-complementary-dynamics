@@ -1,5 +1,5 @@
 // Assume the input animation and simulation use the same tetrahedron mesh
-// 
+//
 // Given the rest mesh (V,T), at the frame t, we find the complementary displacement Uc
 // to add dynamics secondary effects to the input rig displacement Ur.
 //
