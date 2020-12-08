@@ -1,4 +1,5 @@
 #include <Eigen/Core>
+#include <EigenTypes.h>
 
 // Inputs:
 //   V    #V by 3 list of rest (initial pose) mesh vertex positions

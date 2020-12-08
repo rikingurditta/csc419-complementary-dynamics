@@ -25,10 +25,10 @@ double energy(
     Eigen::Matrix3d F;
     deformation_gradient(V, T.row(t), Ur, Uc, F);
     // calculate dF/dU, i.e. derivative of deformation gradient with respect to displacements (flattened)
-    Eigen::MatrixXd B;
+    Eigen::Matrix912d B;
     dF_dU_flattened(V, T.row(t), B);
     // calculate derivative of neohookean potential energy with respect to deformation gradient (flattened)
-    Eigen::Vector9d dpsi(9);
+    Eigen::Vector9d dpsi;
     dpsi_neo_hookean_dF(dpsi, F, neohookean_C, neohookean_D)
     // calculate derivative of neohookean potential energy with respect to displacements (flattened)
     Eigen::VectorXd g_flattened = B.transpose() * dpsi;

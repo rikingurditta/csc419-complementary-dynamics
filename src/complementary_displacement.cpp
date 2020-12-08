@@ -7,7 +7,7 @@ void complementary_displacement(
   const Eigen::MatrixXi & T, 
   const Eigen::SparseMatrix<double> & M,
   const Eigen::MatrixXd & Ur,
-  const Eigen::MatrixXd & UcLast
+  const Eigen::MatrixXd & UcLast,
   const Eigen::MatrixXd & J,
   const Eigen::MatrixXd & g,
   const Eigen::SparseMatrix<double> & H,
