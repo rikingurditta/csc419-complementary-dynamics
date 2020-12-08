@@ -7,18 +7,18 @@
 // to add dynamics secondary effects to the input rig displacement Ur.
 //
 // Inputs:
-//   V  #V by 3 list of rest mesh vertex positions
-//   T  #T by 4 list tetrahedra indices into rows of V
-//   M  #V*3 by #V*3 sparse mass matrix
-//   Ur #V by 3 rig displacement at the current frame
-//   UcLast #V by 3 complementary displacement of the last frame, initial is 0
-//   J  #V*3 by m dense rig jacobian at the current frame
-//   g  #V*3 by 1 gradient of the elasticity potential
-//   H  #V*3 by #V*3 hessian of the elasticity potential
-//   dt time step
-//   energy(V,T,Ur,Uc,dt,C,D) a function that computes the total energy of the FEM system (for doing line search)
+//   V                     #V by 3 list of rest mesh vertex positions
+//   T                     #T by 4 list tetrahedra indices into rows of V
+//   M                     #V*3 by #V*3 sparse mass matrix
+//   Ur                    #V by 3 rig displacement at the current frame
+//   UcLast                #V by 3 complementary displacement of the last frame, initial is 0
+//   J                     #V*3 by m dense rig jacobian at the current frame
+//   g                     #V*3 by 1 gradient of the elasticity potential
+//   H                     #V*3 by #V*3 hessian of the elasticity potential
+//   dt                    time step
+//   energy(V,T,U,dt,C,D)  a function that computes the total energy of the FEM system (for doing line search)
 // Outputs:
-//   Uc #V by 3 complementary displacement at the current frame
+//   Uc                    #V by 3 complementary displacement at the current frame
 template<typename ENERGY>
 void complementary_displacement(
   const Eigen::MatrixXd & V, 

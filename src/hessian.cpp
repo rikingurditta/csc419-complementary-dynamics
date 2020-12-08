@@ -5,8 +5,7 @@
 double hessian(
   const Eigen::MatrixXd &V,
   const Eigen::MatrixXi &T,
-  const Eigen::VectorXd &Ur,
-  const Eigen::VectorXd &Uc,
+  const Eigen::VectorXd &U,
   const double dt,
   const double neohookean_C,
   const double neohookean_D,
@@ -19,7 +18,7 @@ double hessian(
   for (int t = 0; t < T.rows(); t++) {
     // get deformation gradient
     Eigen::Matrix3d F;
-    deformation_gradient(V, T.row(t), Ur, Uc, F);
+    deformation_gradient(V, T.row(t), U, F);
     // calculate dF/dU, i.e. derivative of deformation gradient with respect to displacements
     Eigen::Matrix912d B;
     dF_dU_flattened(V, T.row(t), B);

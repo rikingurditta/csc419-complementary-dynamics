@@ -2,19 +2,10 @@
 #include "dF_dU_flattened.h"
 #include "dphi_neo_hookean_dF.h"
 
-// Inputs:
-//   V  #V by 3 list of rest (initial pose) mesh vertex positions
-//   T  #T by 4 list tetrahedra indices into rows of V
-//   Ur #V by 3 rig displacement at the current frame
-//   Uc #V by 3 complementary displacement at the current frame
-//   dt time step
-// Outputs:
-//   g  #V*3 by 1 gradient of total energy of the system
 double gradient(
   const Eigen::MatrixXd &V,
   const Eigen::MatrixXi &T,
-  const Eigen::VectorXd &Ur,
-  const Eigen::VectorXd &Uc,
+  const Eigen::VectorXd &U,
   const double dt,
   const double neohookean_C,
   const double neohookean_D,
@@ -23,7 +14,7 @@ double gradient(
   for (int t = 0; t < T.rows(); t++) {
     // get deformation gradient
     Eigen::Matrix3d F;
-    deformation_gradient(V, T.row(t), Ur, Uc, F);
+    deformation_gradient(V, T.row(t), U, F);
     // calculate dF/dU, i.e. derivative of deformation gradient with respect to displacements
     Eigen::Matrix912d B;
     dF_dU_flattened(V, T.row(t), B);

@@ -3,8 +3,7 @@
 void deformation_gradient(
   const Eigen::MatrixXd & V,
   const Eigen::RowVector4i & tet,
-  const Eigen::VectorXd & Ur,
-  const Eigen::VectorXd & Uc,
+  const Eigen::VectorXd & U,
   Eigen::Matrix3d & F) {
   int v0 = tet(0);
   int v1 = tet(1);
@@ -12,10 +11,10 @@ void deformation_gradient(
   int v3 = tet(3);
   // get deformed shape matrix
   Eigen::MatrixXd D_def(3, 4);
-  D_def.col(0) = Ur.row(v0) + Uc.row(v0);
-  D_def.col(1) = Ur.row(v1) + Uc.row(v1);
-  D_def.col(2) = Ur.row(v2) + Uc.row(v2);
-  D_def.col(3) = Ur.row(v3) + Uc.row(v3);
+  D_def.col(0) = V.row(v0) + U.row(v0);
+  D_def.col(1) = V.row(v1) + U.row(v1);
+  D_def.col(2) = V.row(v2) + U.row(v2);
+  D_def.col(3) = V.row(v3) + U.row(v3);
   // get undeformed shape matrix stuff
   Eigen::Matrix3d Te = Eigen::Matrix3d::Zero();
   Te.col(0) = V.row(v1) - V.row(v0);
