@@ -1,3 +1,6 @@
+#include <Eigen/Core>
+#include <Eigen/Sparse>
+
 // Assume the input animation and simulation use the same tetrahedron mesh
 //
 // Given the rest mesh (V,T), at the frame t, we find the complementary displacement Uc

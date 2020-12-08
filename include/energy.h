@@ -15,4 +15,4 @@ double energy(
   const Eigen::VectorXd & Uc,
   const double dt,
   const double neohookean_C,
-  const double neohookean_D,);
+  const double neohookean_D);
