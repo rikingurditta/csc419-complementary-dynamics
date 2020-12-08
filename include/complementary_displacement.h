@@ -13,7 +13,7 @@
 //   g  #V*3 by 1 gradient of the elasticity potential
 //   H  #V*3 by #V*3 hessian of the elasticity potential
 //   dt time step
-//   energy(V,T,Ur,Uc,dt) a function that computes the total energy of the FEM system (for doing line search)
+//   energy(V,T,Ur,Uc,dt,C,D) a function that computes the total energy of the FEM system (for doing line search)
 // Outputs:
 //   Uc #V by 3 complementary displacement at the current frame
 template<typename ENERGY>
