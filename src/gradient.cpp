@@ -1,6 +1,6 @@
 #include "gradient.h"
 #include "dF_dU_flattened.h"
-#include "dpsi_neo_hookean_dF.h"
+#include "dphi_neo_hookean_dF.h"
 
 // Inputs:
 //   V  #V by 3 list of rest (initial pose) mesh vertex positions
@@ -11,10 +11,10 @@
 // Outputs:
 //   g  #V*3 by 1 gradient of total energy of the system
 double gradient(
-  const Eigen::MatrixXd & V,
-  const Eigen::MatrixXi & T,
-  const Eigen::VectorXd & Ur,
-  const Eigen::VectorXd & Uc,
+  const Eigen::MatrixXd &V,
+  const Eigen::MatrixXi &T,
+  const Eigen::VectorXd &Ur,
+  const Eigen::VectorXd &Uc,
   const double dt,
   const double neohookean_C,
   const double neohookean_D,
@@ -28,14 +28,14 @@ double gradient(
     Eigen::Matrix912d B;
     dF_dU_flattened(V, T.row(t), B);
     // calculate derivative of neohookean potential energy with respect to deformation gradient
-    Eigen::Vector9d dpsi;
-    dpsi_neo_hookean_dF(dpsi, F, neohookean_C, neohookean_D)
+    Eigen::Vector9d dphi;
+    dphi_neo_hookean_dF(dphi, F, neohookean_C, neohookean_D)
     // calculate derivative of neohookean potential energy with respect to displacements for current tet (chain rule)
-    Eigen::Vector12d g_tet = B.transpose() * dpsi;
+    Eigen::Vector12d g_tet = B.transpose() * dphi;
     // distribute to global gradient vector
-    g.segment(element(0) * 3, 3) += g_tet.segment(0, 3);
-    g.segment(element(1) * 3, 3) += g_tet.segment(3, 3);
-    g.segment(element(2) * 3, 3) += g_tet.segment(6, 3);
-    g.segment(element(3) * 3, 3) += g_tet.segment(9, 3);
+    g.segment(T(t, 0) * 3, 3) += g_tet.segment(0, 3);
+    g.segment(T(t, 1) * 3, 3) += g_tet.segment(3, 3);
+    g.segment(T(t, 2) * 3, 3) += g_tet.segment(6, 3);
+    g.segment(T(t, 3) * 3, 3) += g_tet.segment(9, 3);
   }
 }

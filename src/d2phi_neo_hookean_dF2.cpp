@@ -1,6 +1,6 @@
-#include <d2psi_neo_hookean_dq2.h>
+#include <d2phi_neo_hookean_dF2.h>
 
-void d2psi_neo_hookean_dF2(Eigen::Matrix99d &ddw, Eigen::Ref<const Eigen::Matrix3d> F, double C, double D) {
+void d2phi_neo_hookean_dF2(Eigen::Matrix99d &ddw, Eigen::Ref<const Eigen::Matrix3d> F, double C, double D) {
     // painstakingly used matlab
     double F1_1 = F(0, 0);
     double F1_2 = F(0, 1);

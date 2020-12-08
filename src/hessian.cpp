@@ -1,6 +1,6 @@
 #include "hessian.h"
 #include "dF_dU_flattened.h"
-#include "d2psi_neo_hookean_dq2.h"
+#include "d2phi_neo_hookean_dF2.h"
 
 double hessian(
   const Eigen::MatrixXd &V,
@@ -24,17 +24,17 @@ double hessian(
     Eigen::Matrix912d B;
     dF_dU_flattened(V, T.row(t), B);
     // calculate hessian of neohookean potential energy with respect to deformation gradient
-    Eigen::Matrix99d d2psi;
-    d2psi_neo_hookean_dF2(d2psi, F, neohookean_C, neohookean_D);
+    Eigen::Matrix99d d2phi;
+    d2phi_neo_hookean_dF2(d2phi, F, neohookean_C, neohookean_D);
     // calculate hessian of neohookean potential energy with respect to displacements for current tet (chain rule)
-    Eigen::Matrix1212d H_tet = B.transpose() * dpsi * B;
+    Eigen::Matrix1212d H_tet = B.transpose() * d2phi * B;
     // distribute to global hessian matrix
     for (int el_row = 0; el_row < 4; el_row++) {
       for (int el_col = 0; el_col < 4; el_col++) {
         // i, j loops: iterate over diagonal of 3x3 block for el_row, el_col in tetrahedron hessian
         for (int i = 0; i < 3; i++) {
           for (int j = 0; j < 3; j++) {
-            tl.emplace_back(element(el_row) * 3 + i, element(el_col) * 3 + j,
+            tl.emplace_back(T(t, el_row) * 3 + i, T(t, el_col) * 3 + j,
                             H_tet(el_row * 3 + i, el_col * 3 + j));
           }
         }
