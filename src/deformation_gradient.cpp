@@ -2,7 +2,7 @@
 
 void deformation_gradient(
   const Eigen::MatrixXd & V,
-  const Eigen::RowVector4d & tet,
+  const Eigen::RowVector4i & tet,
   const Eigen::VectorXd & Ur,
   const Eigen::VectorXd & Uc,
   Eigen::Matrix3d & F) {
@@ -22,7 +22,7 @@ void deformation_gradient(
   Te.col(1) = V.row(v2) - V.row(v0);
   Te.col(2) = V.row(v3) - V.row(v0);
   Eigen::Matrix3d Te_inv = Te.inverse();
-  Eigen::Matrix4d dphi;
+  Eigen::MatrixXd dphi(4, 3);
   dphi.row(0) = -Eigen::RowVector3d::Ones() * Te_inv;
   dphi.block<3, 3>(1, 0) = Te_inv;
   // get deformation gradient

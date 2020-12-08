@@ -7,7 +7,7 @@
 //   Uc #V by 3 complementary displacement at the current frame
 //   dt time step
 // Outputs:
-//   return total energy of the system
+//   g  #V by 3 gradient of total energy of the system
 double energy(
   const Eigen::MatrixXd & V,
   const Eigen::MatrixXi & T,
@@ -15,4 +15,5 @@ double energy(
   const Eigen::VectorXd & Uc,
   const double dt,
   const double neohookean_C,
-  const double neohookean_D);
+  const double neohookean_D,
+  Eigen::MatrixXd g);

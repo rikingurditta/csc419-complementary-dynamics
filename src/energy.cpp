@@ -3,7 +3,7 @@
 
 double energy(
   const Eigen::MatrixXd &V,
-  const Eigen::MatrixXd &T,
+  const Eigen::MatrixXi &T,
   const Eigen::VectorXd &Ur,
   const Eigen::VectorXd &Uc,
   const double dt,
