@@ -8,6 +8,7 @@
 //   T  #T by 4 list tetrahedra indices into rows of V
 //   M  #V*3 by #V*3 sparse mass matrix
 //   Ur #V by 3 rig displacement at the current frame
+//   UcLast #V by 3 complementary displacement of the last frame, initial is 0
 //   J  #V*3 by m dense rig jacobian at the current frame
 //   g  #V*3 by 1 gradient of the elasticity potential
 //   H  #V*3 by #V*3 hessian of the elasticity potential
@@ -21,6 +22,7 @@ void complementary_displacement(
   const Eigen::MatrixXi & T, 
   const Eigen::SparseMatrix<double> & M,
   const Eigen::MatrixXd & Ur,
+  const Eigen::MatrixXd & UcLast,
   const Eigen::MatrixXd & J,
   const Eigen::MatrixXd & g,
   const Eigen::SparseMatrix<double> & H,

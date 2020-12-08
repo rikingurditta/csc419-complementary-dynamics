@@ -7,6 +7,7 @@ void complementary_displacement(
   const Eigen::MatrixXi & T, 
   const Eigen::SparseMatrix<double> & M,
   const Eigen::MatrixXd & Ur,
+  const Eigen::MatrixXd & UcLast
   const Eigen::MatrixXd & J,
   const Eigen::MatrixXd & g,
   const Eigen::SparseMatrix<double> & H,
@@ -15,7 +16,7 @@ void complementary_displacement(
   Eigen::MatrixXd & Uc){
     Eigen::MatrixXd tmp_g;
     Eigen::SparseMatrix<double> tmp_h;
-    newtons_method(Uc, energy, ..., ..., 10 /* max steps for now i guess lol */,
+    newtons_method(UcLast, energy, ..., ..., 10 /* max steps for now i guess lol */,
 		   tmp_g, tmp_h);
 }
 
