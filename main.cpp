@@ -43,12 +43,13 @@ int main(int argc, char *argv[]) {
 
   Eigen::MatrixXd U = Eigen::MatrixXd::Ones(V.rows(), 3);
   std::cout << energy(V, T, U, 0.1, neohookean_C, neohookean_D) << "\n";
+  auto curriedEnergy = [=](Eigen::MatrixXd Ut){ energy(V, T, Ut,0.1, neohookean_C, neohookean_D);};
   Eigen::VectorXd grad;
   gradient(V, T, U, 0.1, neohookean_C, neohookean_D, grad);
   auto curriedGradient = [=](Eigen::MatrixXd Ut, Eigen::VectorXd & grad){ gradient(V, T, Ut, 0.1, neohookean_C, neohookean_D, grad);};
   Eigen::SparseMatrixd hess;
   hessian(V, T, U, 0.1, neohookean_C, neohookean_D, hess);
-  auto curriedHessian = [=](Eigen::MatrixXd Ut, Eigen::SarseMatrixd &hess) { hessian(V, T, Ut, 0.1, neohookean_C, neohookean_D, hess);};
+  auto curriedHessian = [=](Eigen::MatrixXd Ut, Eigen::SparseMatrixd &hess) { hessian(V, T, Ut, 0.1, neohookean_C, neohookean_D, hess);};
   Eigen::SparseMatrixd M;
   mass_matrix(V, T, 1., M);
   auto curriedMass_matrix = [=](Eigen::SparseMatrixd &M) { mass_matrix(V, T, 1., M);};
