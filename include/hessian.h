@@ -8,10 +8,10 @@
 //   dt time step
 // Outputs:
 //   H  #V*3 by #V*3 hessian of total energy of the system
-double hessian(
+void hessian(
   const Eigen::MatrixXd & V,
   const Eigen::MatrixXi & T,
-  const Eigen::VectorXd & U,
+  const Eigen::MatrixXd & U,
   const double dt,
   const double neohookean_C,
   const double neohookean_D,

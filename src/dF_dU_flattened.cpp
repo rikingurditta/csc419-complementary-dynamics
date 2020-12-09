@@ -1,9 +1,13 @@
+#include "dF_dU_flattened.h"
 
 void dF_dU_flattened(
   const Eigen::MatrixXd & V,
   const Eigen::RowVector4i & tet,
   Eigen::Matrix912d & B) {
-  // TODO: maybe change this to transposed form so it doesn't need to be transposed later
+  int v0 = tet(0);
+  int v1 = tet(1);
+  int v2 = tet(2);
+  int v3 = tet(3);
   Eigen::Matrix3d Te = Eigen::Matrix3d::Zero();
   Te.col(0) = V.row(v1) - V.row(v0);
   Te.col(1) = V.row(v2) - V.row(v0);
