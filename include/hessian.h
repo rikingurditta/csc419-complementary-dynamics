@@ -11,7 +11,7 @@
 void hessian(
   const Eigen::MatrixXd & V,
   const Eigen::MatrixXi & T,
-  const Eigen::VectorXd & U,
+  const Eigen::MatrixXd & U,
   const double dt,
   const double neohookean_C,
   const double neohookean_D,
