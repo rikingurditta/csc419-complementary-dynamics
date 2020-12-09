@@ -1,10 +1,10 @@
 #include "complementary_displacement.h"
 #include "mass_matrix.h"
-#include "gradient.h"
-#include "hessian.h"
+//#include "gradient.h"
+//#include "hessian.h"
 #include "rig_jacobian.h"
 
-template<typename ENERGY>
+template<typename ENERGY, typename Gradient, typename Hessian>
 void complementary_displacement(
   const Eigen::MatrixXd & V, 
   const Eigen::MatrixXi & T, 
@@ -18,6 +18,8 @@ void complementary_displacement(
   const Eigen::SparseMatrix<double> & H,
   const double & dt,
   ENERGY & energy,
+  Gradient & gradient,
+  Hessian & hessian,
   Eigen::MatrixXd & Uc){
     Eigen::MatrixXd tmp_g;
     Eigen::SparseMatrix<double> tmp_h;
@@ -37,10 +39,20 @@ void complementary_displacement(
 //Output: 
 //  x0 - update x0 to new value
 template<typename Objective, typename Jacobian, typename Hessian>
-void newtons_method(Eigen::MatrixXd &x0, Objective &f, Jacobian &g, Hessian &H, unsigned int maxSteps,
-                      double dt, Eigen::MatrixXd Ur, Eigen::VectorXd lastDut,
-		    Eigen::MatrixXd lastDu, Eigen::MatrixXd & J, Eigen::SparseMatrixd &M, Eigen::MatrixXd rigJacobian,
-		      Eigen::MatrixXd &tmp_g, Eigen::SparseMatrix<double> &tmp_H) {
+void newtons_method(Eigen::MatrixXd &x0,
+		    Objective &f,
+		    Jacobian &g,
+		    Hessian &H,
+		    unsigned int maxSteps,
+		    double dt,
+		    Eigen::MatrixXd Ur,
+		    Eigen::VectorXd lastDut,
+		    Eigen::MatrixXd lastDu,
+		    Eigen::MatrixXd & J,
+		    Eigen::SparseMatrixd &M,
+		    Eigen::MatrixXd rigJacobian,
+		    Eigen::MatrixXd &tmp_g,
+		    Eigen::SparseMatrix<double> &tmp_H) {
     // get initial gradient
     g(tmp_g, x0);
     int steps = 0;
@@ -66,7 +78,8 @@ void newtons_method(Eigen::MatrixXd &x0, Objective &f, Jacobian &g, Hessian &H, 
 	Eigen::VectorXd d = tmp.head(tmp.size() - 1);
         // line search for good alpha
         double alpha = 1.;
-        while (f(x0 + alpha * d) > f(x0) + 1e-8 * alpha * tmp_g.dot(d) and alpha > 1e-8) {
+	// TODO: double check, will also need with the Uc and Ur thing
+        while (f(x0 + alpha * d + Ur) > f(x0 + Ur) + 1e-8 * alpha * tmp_g.dot(d) and alpha > 1e-8) {
             alpha = alpha * 0.5;  // scaling factor is 0.5
         }
         // update x0
