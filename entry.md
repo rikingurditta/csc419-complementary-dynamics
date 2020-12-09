@@ -1,7 +1,7 @@
 # Complementary Dynamics
 
 ## Introduction
-Animating models can be very difficult task that that can require a lot of work, especially when trying to simulate real life physics in an artistic manner. When using programs to add physical effects to animations one issue is that the physics may undo the hand animation and the intent of the artist. Complementary dynamics is a system that is designed to enhance the animation while not interfering with the artists intentions. It achieves this by finding complementary displacements such that they are algebraically orthogonal to the animated dispalcements.
+Animating models can be very difficult task that that can require a lot of work, especially when trying to simulate real life physics in an artistic manner. When using programs to add physical effects to animations one issue is that the physics may undo the hand animation and the intent of the artist. Complementary dynamics is a system that is designed to enhance the animation while not interfering with the artists intentions. It achieves this by finding complementary displacements such that they are algebraically orthogonal to the animated displacements.
 - motivation
   - animating is a lot of work
   - physics based animation is hard to control artistically
@@ -14,16 +14,27 @@ Animating models can be very difficult task that that can require a lot of work,
 
 ### Overview?
 
-In short, we want to generate complementary displacements that are orthogonal to the rig displacements. To do so from a high level what would be used is newtons method to minimize the energy with constraints, where the energy is the neohookean elasticity. These would affect the rig jacobian which has calculations that would prevent allowing $u^c_t$ from being able to undo $u^r_t$.
+In short, we want to generate complementary displacements that are orthogonal to the rig displacements. To do so from a high level what would be used is newtons method to minimize the energy with constraints, where the energy is the neohookean elasticity. These would affect the rig jacobian which has calculations that would prevent allowing $\mathbf u^c_t$ from being able to undo $\mathbf u^r_t$.
 general overview of the algorithm(1-2 paragraphs maybe? Still should be fairly short)
 
-### Minimizing energy
+### Minimizing Energy
 
-In order to create interesting animations that would not undo the artists hand animation we minimize the potential energy of the system described, in our case, as the neo-hookean elasticity. Given $u_t^r, J_t$ we want to find a a direction to move the function in such that it satisfies the orthogonal constraint so as to not undo the input displacements. We solve a system involving a block matrix $\begin{bmatrix} \mathbf Q & \mathbf C^T\\ \mathbf C & 0 \end{bmatrix}\begin{bmatrix} \mathbf x \\ \lambda \end{bmatrix} = \begin{bmatrix} \mathbf l \\ 0 \end{bmatrix}$ where the values of $\mathbf Q, \mathbf l$ are determined due to solving the lagrange multipliers at each iteration of the newtons method. The requirement that $\mathbf J_t^T M \mathbf x = \mathbf 0$ is a constraint to ensure that the complementary effects would not undo the input rig animation. 
-- newton's method stuff
-- what exactly are we minimizing and how? this is the core of the algorithm
-- newtons method(motivate but mostly go over the derivatives then explain the steps for newtons method, maybe 2-3 paragraphs. Should have a section on line search part i guess. I think important to talk about what this is analagous to and why it is doing what it does)
-- talk about the derivatives and solving newtons method(1-2 paragraphs I don't think this needs to be that in depth)
+In order to create interesting animations that would not undo the artists hand animation we minimize the potential energy of the system described, in our case, as the Neohookean elasticity. Given $\mathbf u_t^r, \mathbf J_t$ we want to find a a direction to move the function in such that it satisfies the orthogonal constraint so as to not undo the input displacements. We solve a system involving a block matrix
+
+$$
+\begin{bmatrix} \mathbf Q & \mathbf C^T\\ \mathbf C & 0 \end{bmatrix}\begin{bmatrix} \mathbf x \\ \lambda \end{bmatrix} = \begin{bmatrix} \mathbf l \\ 0 \end{bmatrix}
+$$
+
+where the values of $\mathbf Q, \mathbf l$ are determined due to solving the Lagrange multipliers at each iteration of the newtons method. The requirement that $\mathbf J_t^T \mathbf M \mathbf x = \mathbf 0$ is a constraint to ensure that the complementary effects would not undo the input rig animation. Once we solve this system, we can use $\mathbf x$ to calculate our search direction to find a suitable $\mathbf u_{t+h}^c$:
+
+```c++
+Eigen::VectorXd d = x - Uc;  // search in direction towards x
+double alpha = 1.;  // search step size
+while (f(Uc + alpha * d + Ur) > f(Uc + Ur) + 1e-8 * alpha * tmp_g.dot(d) and alpha > 1e-8) {
+    alpha = alpha * 0.5;  // scaling factor is 0.5
+}
+Uc = Uc + alpha * d;  // update Uc
+```
 
 
 ### Neohookean Elasticity
@@ -32,12 +43,34 @@ The algorithm is essentially minimizing physical energy subject to constraints t
 $$
 \Phi_{tet} = vol_{tet} \cdot \left( C \cdot (\det(\mathbf F)^{-2/3}\cdot \text{tr}(\mathbf F^T \mathbf F) - 3) + D \cdot (\det(\mathbf F) - 1)^2 \right)
 $$
-where $C$ and $D$ are physical constants that depend on the material being modelled. In our implementation, we use values of 107143 and 428571, based on the values given in a CSC417 assignment.
+where $C$ and $D$ are physical constants that depend on the material being modelled. In our implementation, we use values of 107143 and 428571, based on the values given in a CSC417 assignment. $\mathbf F$ is the deformation gradient of the tetrahedron, a matrix which encodes in what way the tetrahedron has been deformed.
 
-- above, we discussed minimizing the potential energy of the system
-- in practice, potential energy defined by the type of material being modelled
-- neohookean potential is for continuum solids made of elastic material
-- gradient is force, hessian is "stiffness"
+To calculate the gradient $d\Phi/d\mathbf u^c$, we use the chain rule and combine $d\Phi/d\mathbf F$ and $d\mathbf F/d\mathbf u^c$, which are easier to compute (though both very large formulas). Here is an outline of how we calculate $d\Phi/d\mathbf u^c$ for a single tetrahedron:
+
+```c++
+// get deformation gradient
+Eigen::Matrix3d F;
+deformation_gradient(V, tet, U, F);
+// calculate dF/dU, i.e. derivative of deformation gradient with respect to displacements
+Eigen::Matrix912d B;
+dF_dU_flattened(V, tet, B);
+// calculate derivative of neohookean potential energy with respect to deformation gradient
+Eigen::Vector9d dphi;
+dphi_neo_hookean_dF(dphi, F, neohookean_C, neohookean_D);
+// calculate derivative of neohookean potential energy with respect to displacements for current tet (chain rule)
+Eigen::Vector12d g_tet = tet_volume * B.transpose() * dphi;
+```
+
+This is then distributed to the global gradient vector:
+
+```c++
+g.segment(tet(0) * 3, 3) += g_tet.segment(0, 3);
+g.segment(tet(1) * 3, 3) += g_tet.segment(3, 3);
+g.segment(tet(2) * 3, 3) += g_tet.segment(6, 3);
+g.segment(tet(3) * 3, 3) += g_tet.segment(9, 3);
+```
+
+The hessian is calculated and distributed in a similar way, except it is distributed to a global sparse square matrix rather than a global dense vector.
 
 ### Rig Jacobian and Complementarity
 
