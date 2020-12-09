@@ -18,6 +18,7 @@ general overview of the algorithm(1-2 paragraphs maybe? Still should be fairly s
 
 ### Minimizing energy
 
+In order to create interesting animations that would not undo the artists hand animation we minimize the potential energy of the system described, in our case, as the neo-hookean elasticity. Given $u_t^r, J_t$ we want to find a a direction to move the function in such that it satisfies the orthogonal constraint so as to not undo the input displacements. We solve a system involving a block matrix $\begin{bmatrix} \mathbf Q & \mathbf C^T\\ \mathbf C & 0 \end{bmatrix}\begin{bmatrix} \mathbf x \\ \lambda \end{bmatrix} = \begin{bmatrix} \mathbf l \\ 0 \end{bmatrix}$ where the values of $\mathbf Q, \mathbf l$ are determined due to solving the lagrange multipliers at each iteration of the newtons method. The requirement that $\mathbf J_t^T M \mathbf x = \mathbf 0$ is a constraint to ensure that the complementary effects would not undo the input rig animation. 
 - newton's method stuff
 - what exactly are we minimizing and how? this is the core of the algorithm
 - newtons method(motivate but mostly go over the derivatives then explain the steps for newtons method, maybe 2-3 paragraphs. Should have a section on line search part i guess. I think important to talk about what this is analagous to and why it is doing what it does)

@@ -69,7 +69,8 @@ void newtons_method(Eigen::MatrixXd &x0,
 	block.block(0, 0, Q.rows(), Q.cols()) = Q;
 	block.block(0, Q.cols(), C.cols(), C.rows()) = C.transpose();
 	block.block(Q.rows(), 0, C.rows(), C.cols()) = C;
-        // solve Hd = -g
+	
+	// solve the block matrix
 	Eigen::PartialPivLU<Eigen::MatrixXd> solver(block);
 	Eigen::VectorXd sol = Eigen::VectorXd::Zero(block.cols());
 	sol.head(l.size()) = l;
@@ -78,7 +79,6 @@ void newtons_method(Eigen::MatrixXd &x0,
 	Eigen::VectorXd d = tmp.head(tmp.size() - 1);
         // line search for good alpha
         double alpha = 1.;
-	// TODO: double check, will also need with the Uc and Ur thing
         while (f(x0 + alpha * d + Ur) > f(x0 + Ur) + 1e-8 * alpha * tmp_g.dot(d) and alpha > 1e-8) {
             alpha = alpha * 0.5;  // scaling factor is 0.5
         }
