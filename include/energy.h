@@ -10,7 +10,7 @@
 double energy(
   const Eigen::MatrixXd & V,
   const Eigen::MatrixXi & T,
-  const Eigen::VectorXd & U,
+  const Eigen::MatrixXd & U,
   double dt,
   double neohookean_C,
   double neohookean_D);

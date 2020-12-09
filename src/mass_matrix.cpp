@@ -20,9 +20,9 @@ void mass_matrix(
         // only need to iterate over diagonal because each 3x3 block is diagonal
         for (int i = 0; i < 3; i++) {
           if (el_row == el_col)
-            tl.emplace_back(T(t, el_row) * 3 + i, T(t, el_col) * 3 + i, density * tet_volumes(t) / 10);
+            tl.emplace_back(T(t, el_row) * 3 + i, T(t, el_col) * 3 + i, density * tet_volumes(t) / 10.);
           else
-            tl.emplace_back(T(t, el_row) * 3 + i, T(t, el_col) * 3 + i, density * tet_volumes(t) / 20);
+            tl.emplace_back(T(t, el_row) * 3 + i, T(t, el_col) * 3 + i, density * tet_volumes(t) / 20.);
         }
       }
     }
