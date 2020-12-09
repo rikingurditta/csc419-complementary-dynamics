@@ -1,5 +1,11 @@
 # Complementary Dynamics
 
+By Rikin Gurditta and Henry Wang
+
+[Here is the paper's webpage](https://www.dgp.toronto.edu/projects/complementary-dynamics/complementary-dynamics.pdf)
+
+[Here is our video](https://www.youtube.com/watch?v=u_CjOoQZDnU&feature=youtu.be)
+
 ## Introduction
 Animating models can be very difficult task that that can require a lot of work, especially when trying to simulate real life physics in an artistic manner. When using programs to add physical effects to animations one issue is that the physics may undo the hand animation and the intent of the artist. Complementary dynamics is a system that is designed to enhance the animation while not interfering with the artists intentions. It achieves this by finding complementary displacements such that they are algebraically orthogonal to the animated displacements.
 ## Computing Complementary Displacement
@@ -31,9 +37,11 @@ Uc = Uc + alpha * d;  // update Uc
 ### Neohookean Elasticity
 
 The algorithm is essentially minimizing physical energy subject to constraints that uphold the artist's intent. In our implementation, our energy function is Neohookean elasticity. The formula for this energy for a single tetrahedron is
+
 $$
 \Phi_{tet} = vol_{tet} \cdot \left( C \cdot (\det(\mathbf F)^{-2/3}\cdot \text{tr}(\mathbf F^T \mathbf F) - 3) + D \cdot (\det(\mathbf F) - 1)^2 \right)
 $$
+
 where $C$ and $D$ are physical constants that depend on the material being modelled. In our implementation, we use values of 107143 and 428571, based on the values given in a CSC417 assignment. $\mathbf F$ is the deformation gradient of the tetrahedron, a matrix which encodes in what way the tetrahedron has been deformed. To calculate the global energy, just sum up the energies for each tetrahedron.
 
 To calculate the gradient $d\Phi/d\mathbf u^c$, we use the chain rule and combine $d\Phi/d\mathbf F$ and $d\mathbf F/d\mathbf u^c$, which are easier to compute (though both very large formulas). Here is an outline of how we calculate $d\Phi/d\mathbf u^c$ for a single tetrahedron:
@@ -79,9 +87,11 @@ viewer.data().set_vertices(TU);
 ```
 
 `T` parametrizes this deformation, so we define $\mathbf p$ to be a vector encoding of `T`. We can find the derivative of the skinning transformation, giving us $d\mathbf u^r/d\mathbf p = \mathbf J$, the rig Jacobian. The calculations for this step are outlined in equations 13 and 14 of Complementary Dynamics, but essentially boil down to computations of
+
 $$
 \mathbf J_{ij} = w_{ij} \mathbf I \otimes \begin{pmatrix}\mathbf v_i^T & 1\end{pmatrix}
 $$
+
 where $w_{ij}$ is the weight of the $j^{\text{th}}$ bone on the $i^{\text{th}}$ vertex, $\mathbf I$ is a 3 by 3 identity matrix, $\otimes$ is the [Kronecker product](https://en.wikipedia.org/wiki/Kronecker_product), and $\mathbf v_i$ is the rest position of the $i^{\text{th}}$ vertex. This equation is implemented as
 
 ```c++
@@ -100,6 +110,12 @@ J.block<3, 12>(i * 3, j * 12) = W(i, j) * kronecker;
 
 Our derivations above are looking to optimize $\mathbf u^c$ so that $\mathbf J^T \mathbf M \mathbf u^c = \mathbf 0$. Intuitively, this ensures that $-\mathbf u^c$ does not correspond to any rig transformation, so $\mathbf u^c$ does not undo any of the artist's work.
 
-## Conclusion
-conclusion(1 paragraph at most, going over intuition)
+## Notes on the project
 
+This markdown file has inline math which can be rendered by mathjax, just like in the real libigl tutorials.
+
+This is a standard `cmake` project, to build it just make a build folder, `cmake` the project, `make` it, then run `./complementary_dynamics`.
+
+Note that it does not work. Specifically, the `complementary_dynamics` function always returns 0 displacement. We tried very hard to fix this, to no avail. Hopefully you can see the work we put into it.
+
+When we read the `.h` file given to us, we assumed that we were required to implement it with Neohookean elasticity rather than linear elasticity. However we probably should not have done that!
