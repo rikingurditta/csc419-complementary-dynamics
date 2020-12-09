@@ -1,7 +1,7 @@
 # Complementary Dynamics
 
 ## Introduction
-
+Animating models can be very difficult task that that can require a lot of work, especially when trying to simulate real life physics in an artistic manner. When using programs to add physical effects to animations one issue is that the physics may undo the hand animation and the intent of the artist. Complementary dynamics is a system that is designed to enhance the animation while not interfering with the artists intentions. It achieves this by finding complementary displacements such that they are algebraically orthogonal to the animated dispalcements.
 - motivation
   - animating is a lot of work
   - physics based animation is hard to control artistically
@@ -14,10 +14,12 @@
 
 ### Overview?
 
+In short, we want to generate complementary displacements that are orthogonal to the rig displacements. To do so from a high level what would be used is newtons method to minimize the energy with constraints, where the energy is the neohookean elasticity. These would affect the rig jacobian which has calculations that would prevent allowing $u^c_t$ from being able to undo $u^r_t$.
 general overview of the algorithm(1-2 paragraphs maybe? Still should be fairly short)
 
 ### Minimizing energy
 
+In order to create interesting animations that would not undo the artists hand animation we minimize the potential energy of the system described, in our case, as the neo-hookean elasticity. Given $u_t^r, J_t$ we want to find a a direction to move the function in such that it satisfies the orthogonal constraint so as to not undo the input displacements. We solve a system involving a block matrix $\begin{bmatrix} \mathbf Q & \mathbf C^T\\ \mathbf C & 0 \end{bmatrix}\begin{bmatrix} \mathbf x \\ \lambda \end{bmatrix} = \begin{bmatrix} \mathbf l \\ 0 \end{bmatrix}$ where the values of $\mathbf Q, \mathbf l$ are determined due to solving the lagrange multipliers at each iteration of the newtons method. The requirement that $\mathbf J_t^T M \mathbf x = \mathbf 0$ is a constraint to ensure that the complementary effects would not undo the input rig animation. 
 - newton's method stuff
 - what exactly are we minimizing and how? this is the core of the algorithm
 - newtons method(motivate but mostly go over the derivatives then explain the steps for newtons method, maybe 2-3 paragraphs. Should have a section on line search part i guess. I think important to talk about what this is analagous to and why it is doing what it does)
@@ -75,6 +77,5 @@ J.block<3, 12>(i * 3, j * 12) = W(i, j) * kronecker;
 Our derivations above are looking to optimize $\mathbf u^c$ so that $\mathbf J^T \mathbf M \mathbf u^c = \mathbf 0$. Intuitively, this ensures that $-\mathbf u^c$ does not correspond to any rig transformation, so $\mathbf u^c$ does not undo any of the artist's work.
 
 ## Conclusion
-
 conclusion(1 paragraph at most, going over intuition)
 
