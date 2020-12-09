@@ -48,6 +48,7 @@ void hessian(
   H.setFromTriplets(tl.begin(), tl.end());
 }
 
+// taken from Rikin Gurditta's CSC417 A3 submission
 void d2phi_neo_hookean_dF2(Eigen::Matrix99d &ddw, Eigen::Ref<const Eigen::Matrix3d> F, double C, double D) {
   // painstakingly used matlab
   double F1_1 = F(0, 0);

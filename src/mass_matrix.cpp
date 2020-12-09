@@ -1,6 +1,7 @@
 #include <mass_matrix.h>
 #include <igl/volume.h>
 
+// based on Rikin Gurditta's CSC417 A3 submission
 void mass_matrix(
   const Eigen::MatrixXd &V,
   const Eigen::MatrixXi &T,

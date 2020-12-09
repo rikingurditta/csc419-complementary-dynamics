@@ -1,6 +1,5 @@
 #include "rig_jacobian.h"
 
-
 void rig_jacobian(
   const Eigen::MatrixXd &V,
   const Eigen::MatrixXd &W,

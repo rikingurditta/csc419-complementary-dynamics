@@ -1,5 +1,6 @@
 #include "dF_dU_flattened.h"
 
+// based on Rikin Gurditta's CSC417 A3 submission
 void dF_dU_flattened(
   const Eigen::MatrixXd & V,
   const Eigen::RowVector4i & tet,

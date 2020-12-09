@@ -37,9 +37,7 @@ void complementary_displacement(
   auto curriedHessian = [=](Eigen::MatrixXd Ut, Eigen::SparseMatrixd &hess) {
     hessian(V, T, Ut, dt, neohookean_C, neohookean_D, hess);
   };
-  newtons_method(Uc, curriedEnergy, curriedGradient, curriedHessian, 10, dt, Ur, duLast,
-                 J, M, //placeholder value for the last derivative and last U value
-                 tmp_g, tmp_h);
+  newtons_method(Uc, curriedEnergy, curriedGradient, curriedHessian, 10, dt, Ur, duLast, J, M, tmp_g, tmp_h);
 }
 
 
@@ -54,17 +52,17 @@ void complementary_displacement(
 //  x0 - update x0 to new value
 template<typename Objective, typename Gradient, typename Hessian>
 void newtons_method(Eigen::MatrixXd &x0,
-                     Objective &f,
-                     Gradient &g,
-                     Hessian &H,
-                     unsigned int maxSteps,
-                     double dt,
-                     const Eigen::MatrixXd Ur,
-                     const Eigen::MatrixXd lastDu,
-                     const Eigen::MatrixXd &J,
-                     const Eigen::SparseMatrixd &M,
-                     Eigen::VectorXd &tmp_g,
-                     Eigen::SparseMatrix<double> &tmp_H) {
+                    Objective &f,
+                    Gradient &g,
+                    Hessian &H,
+                    unsigned int maxSteps,
+                    double dt,
+                    const Eigen::MatrixXd Ur,
+                    const Eigen::MatrixXd lastDu,
+                    const Eigen::MatrixXd &J,
+                    const Eigen::SparseMatrixd &M,
+                    Eigen::VectorXd &tmp_g,
+                    Eigen::SparseMatrix<double> &tmp_H) {
   // get initial gradient
   g(x0, tmp_g);
   int steps = 0;
