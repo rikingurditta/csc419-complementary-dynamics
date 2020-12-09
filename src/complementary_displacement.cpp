@@ -1,4 +1,5 @@
 #include "complementary_displacement.h"
+#include "mass_matrix.h"
 #include "gradient.h"
 #include "hessian.h"
 #include "rig_jacobian.h"
@@ -10,6 +11,8 @@ void complementary_displacement(
   const Eigen::SparseMatrix<double> & M,
   const Eigen::MatrixXd & Ur,
   const Eigen::MatrixXd & UcLast,
+  const Eigen::MatrixXd & ULast,
+  const Eigen::MatrixXd & duLast,
   const Eigen::MatrixXd & J,
   const Eigen::MatrixXd & g,
   const Eigen::SparseMatrix<double> & H,
@@ -18,7 +21,7 @@ void complementary_displacement(
   Eigen::MatrixXd & Uc){
     Eigen::MatrixXd tmp_g;
     Eigen::SparseMatrix<double> tmp_h;
-    newtons_method(UcLast, energy, gradient, hessian, 10, dt, Ur, UcLast, UcLast, //placeholder value for the last derivative and last U value
+    newtons_method(UcLast, energy, gradient, hessian, 10, dt, Ur, duLast, UcLast, J, //placeholder value for the last derivative and last U value
 		   tmp_g, tmp_h);
 }
 
@@ -34,8 +37,8 @@ void complementary_displacement(
 //  x0 - update x0 to new value
 template<typename Objective, typename Jacobian, typename Hessian>
 void newtons_method(Eigen::MatrixXd &x0, Objective &f, Jacobian &g, Hessian &H, unsigned int maxSteps,
-                      double &dt, Eigen::MatrixXd &Ur, Eigen::VectorXd &lastDut,
-		    Eigen::MatrixXd &lastDu, Eigen::MatrixXd &J, Eigen::MatrixXd rigJacobian,
+                      double dt, Eigen::MatrixXd Ur, Eigen::VectorXd lastDut,
+		    Eigen::MatrixXd lastDu, Eigen::MatrixXd & J, Eigen::SparseMatrixd &M, Eigen::MatrixXd rigJacobian,
 		      Eigen::MatrixXd &tmp_g, Eigen::SparseMatrix<double> &tmp_H) {
     // get initial gradient
     g(tmp_g, x0);
