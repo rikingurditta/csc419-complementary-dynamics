@@ -33,7 +33,41 @@ general overview of the algorithm(1-2 paragraphs maybe? Still should be fairly s
 
 ### Rig Jacobian and Complementarity
 
-- rig works with linear blend skinning
+The crucial part of the calculations above is the rig Jacobian $\mathbf J$. This is where the artist's animation comes into play.
+
+Artists create animations using "rigs" that consist a (relatively small) number of parameters to control the mesh. In our case, we use linear blend skinning, which is where the artist places a number of "bones" around the mesh. Each bone influences the vertices around it by some weight (chosen by the artist), and for each vertex, the sum of bone weights adds up to 1. The artist can transform the bones, inducing a weighted average transformation on each vertex. In this setup, the parameters of the rig are affine transformations of the bones.
+
+Given a matrix `W` of weights `W(i, j)` of bone `j` on vertex `i`, we can use `igl::lbs_matrix` to calculate the skinning matrix, so that if `T` is a matrix of affine transformations, then `W * T` gives us the deformed vertex positions.
+
+```c++
+Eigen::MatrixXd LBS;
+igl::lbs_matrix(V, weights, LBS);
+TU = LBS * T;
+viewer.data().set_vertices(TU);
+```
+
+`T` parametrizes this deformation, so we define $\mathbf p$ to be a vector encoding of `T`. We can find the derivative of the skinning transformation, giving us $d\mathbf u^r/d\mathbf p = \mathbf J$, the rig Jacobian. The calculations for this step are outlined in equations 13 and 14 of Complementary Dynamics, but essentially boil down to computations of
+$$
+\mathbf J_{ij} = w_{ij} \mathbf I \otimes \begin{pmatrix}\mathbf v_i^T & 1\end{pmatrix}
+$$
+where $w_{ij}$ is the weight of the $j^{\text{th}}$ bone on the $i^{\text{th}}$ vertex, $\mathbf I$ is a 3 by 3 identity matrix, $\otimes$ is the [Kronecker product](https://en.wikipedia.org/wiki/Kronecker_product), and $\mathbf v_i$ is the rest position of the $i^{\text{th}}$ vertex. This equation is implemented as
+
+```c++
+// v1 = [v^T 1]
+Eigen::MatrixXd v1(1, 4);
+v1.block<1, 3>(0, 0) = V.row(i);
+v1(3) = 1;
+// calculate kronecker product of identity (*) v1
+Eigen::MatrixXd kronecker = Eigen::MatrixXd::Zero(3, 12);
+kronecker.block<1, 4>(0, 0) = v1;
+kronecker.block<1, 4>(1, 4) = v1;
+kronecker.block<1, 4>(2, 8) = v1;
+// each block of J is w_ij * Id (*) [v^T 1]
+J.block<3, 12>(i * 3, j * 12) = W(i, j) * kronecker;
+```
+
+Our derivations above are looking to optimize $\mathbf u^c$ so that $\mathbf J^T \mathbf M \mathbf u^c = \mathbf 0$. Intuitively, this ensures that $-\mathbf u^c$ does not correspond to any rig transformation, so $\mathbf u^c$ does not undo any of the artist's work.
+
 - parameters of rig are affine transformations of "bones"
 - rig function is weighted average of bone transformations
   - maybe have a picture of this
