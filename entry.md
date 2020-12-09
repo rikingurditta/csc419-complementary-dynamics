@@ -1,7 +1,7 @@
 # Complementary Dynamics
 
 ## Introduction
-
+Animating models can be very difficult task that that can require a lot of work, especially when trying to simulate real life physics in an artistic manner. When using programs to add physical effects to animations one issue is that the physics may undo the hand animation and the intent of the artist. Complementary dynamics is a system that is designed to enhance the animation while not interfering with the artists intentions. It achieves this by finding complementary displacements such that they are algebraically orthogonal to the animated dispalcements.
 - motivation
   - animating is a lot of work
   - physics based animation is hard to control artistically
