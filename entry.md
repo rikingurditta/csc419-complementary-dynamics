@@ -14,6 +14,7 @@ Animating models can be very difficult task that that can require a lot of work,
 
 ### Overview?
 
+In short, we want to generate complementary displacements that are orthogonal to the rig displacements. To do so from a high level what would be used is newtons method to minimize the energy with constraints, where the energy is the neohookean elasticity. These would affect the rig jacobian which has calculations that would prevent allowing $u^c_t$ from being able to undo $u^r_t$.
 general overview of the algorithm(1-2 paragraphs maybe? Still should be fairly short)
 
 ### Minimizing energy
@@ -78,6 +79,5 @@ Our derivations above are looking to optimize $\mathbf u^c$ so that $\mathbf J^T
   - thus $\mathbf u^c$ cannot be undoing any transformation that the artist produced
 
 ## Conclusion
-
 conclusion(1 paragraph at most, going over intuition)
 
