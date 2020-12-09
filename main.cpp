@@ -130,11 +130,14 @@ int main(int argc, char *argv[]) {
   int frame = 0;
   viewer.callback_pre_draw = [&](igl::opengl::glfw::Viewer &) -> bool {
     if (viewer.core().is_animating) {
+	// Ur = TU - V
+	Eigen::MatrixXd Uc;
+	complementary_displacement(V, T, M, TU-V, UcLast, ULast, duLast, J, g, H, 0.1, curriedEnergy, curriedGradient, curriedHessian, Uc);
       Eigen::MatrixXd T = T_list[frame];
       TU = LBS * T;
       frame++;
 
-      viewer.data().set_vertices(TU);
+      viewer.data().set_vertices(TU + Uc);
       viewer.data().compute_normals();
 
       if (frame == T_list.size()) {
