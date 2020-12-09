@@ -21,7 +21,8 @@ void complementary_displacement(
   Eigen::MatrixXd & Uc){
     Eigen::MatrixXd tmp_g;
     Eigen::SparseMatrix<double> tmp_h;
-    newtons_method(UcLast, energy, gradient, hessian, 10, dt, Ur, duLast, UcLast, J, //placeholder value for the last derivative and last U value
+    Uc = UcLast;
+    newtons_method(Uc, energy, gradient, hessian, 10, dt, Ur, duLast, ULast, J, //placeholder value for the last derivative and last U value
 		   tmp_g, tmp_h);
 }
 
