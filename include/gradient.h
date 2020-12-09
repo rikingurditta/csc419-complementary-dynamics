@@ -8,7 +8,7 @@
 //   dt time step
 // Outputs:
 //   g  #V*3 by 1 gradient of total energy of the system
-double gradient(
+void gradient(
   const Eigen::MatrixXd & V,
   const Eigen::MatrixXi & T,
   const Eigen::VectorXd & U,

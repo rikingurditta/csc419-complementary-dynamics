@@ -11,8 +11,8 @@ void mass_matrix(
   std::vector <Eigen::Triplet<double>> tl;
   tl.reserve(48 * T.rows());
   Eigen::VectorXd tet_volumes(T.rows());
-  igl::volume(V, T, vol);
-  for (int t = 0; t < T.rows(); el++) {
+  igl::volume(V, T, tet_volumes);
+  for (int t = 0; t < T.rows(); t++) {
     // el_row, el_col loops: iterate over pairs of vertices of the tetrahedron
     for (int el_row = 0; el_row < 4; el_row++) {
       for (int el_col = 0; el_col < 4; el_col++) {

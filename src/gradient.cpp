@@ -1,8 +1,9 @@
 #include "gradient.h"
+#include "deformation_gradient.h"
 #include "dF_dU_flattened.h"
 #include "dphi_neo_hookean_dF.h"
 
-double gradient(
+void gradient(
   const Eigen::MatrixXd &V,
   const Eigen::MatrixXi &T,
   const Eigen::VectorXd &U,
@@ -20,7 +21,7 @@ double gradient(
     dF_dU_flattened(V, T.row(t), B);
     // calculate derivative of neohookean potential energy with respect to deformation gradient
     Eigen::Vector9d dphi;
-    dphi_neo_hookean_dF(dphi, F, neohookean_C, neohookean_D)
+    dphi_neo_hookean_dF(dphi, F, neohookean_C, neohookean_D);
     // calculate derivative of neohookean potential energy with respect to displacements for current tet (chain rule)
     Eigen::Vector12d g_tet = B.transpose() * dphi;
     // distribute to global gradient vector

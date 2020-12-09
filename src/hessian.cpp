@@ -1,8 +1,9 @@
 #include "hessian.h"
+#include "deformation_gradient.h"
 #include "dF_dU_flattened.h"
 #include "d2phi_neo_hookean_dF2.h"
 
-double hessian(
+void hessian(
   const Eigen::MatrixXd &V,
   const Eigen::MatrixXi &T,
   const Eigen::VectorXd &U,
@@ -40,5 +41,5 @@ double hessian(
       }
     }
   }
-  H.setFromTriplets(tl.begin(), tl.end())
+  H.setFromTriplets(tl.begin(), tl.end());
 }

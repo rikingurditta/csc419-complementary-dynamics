@@ -8,10 +8,14 @@
 #include <igl/parula.h>
 
 #include "rig_jacobian.h"
+#include "mass_matrix.h"
+#include "energy.h"
+#include "gradient.h"
+#include "hessian.h"
 
 int main(int argc, char *argv[]) {
   Eigen::MatrixXd V;
-  Eigen::MatrixXd T;
+  Eigen::MatrixXi T;
   Eigen::MatrixXi F;
   igl::readMESH("../data/coarse_bunny.mesh", V, T, F);
   igl::boundary_facets(T, F);
@@ -21,6 +25,20 @@ int main(int argc, char *argv[]) {
     F(f, 0) = F(f, 1);
     F(f, 1) = t;
   }
+
+  //material parameters
+  double density = 0.1;
+  double YM = 6e5; //young's modulus
+  double mu = 0.4; //poissons ratio
+  double neohookean_D = 0.5*(YM*mu)/((1.0+mu)*(1.0-2.0*mu));
+  double neohookean_C = 0.5*YM/(2.0*(1.0+mu));
+
+  Eigen::MatrixXd U = Eigen::MatrixXd::Zero(V.rows(), 3);
+  std::cout << energy(V, T, U, 0.1, neohookean_C, neohookean_D) << "\n";
+  Eigen::VectorXd grad;
+  gradient(V, T, U, 0.1, neohookean_C, neohookean_D, grad);
+  Eigen::SparseMatrixd hess;
+  hessian(V, T, U, 0.1, neohookean_C, neohookean_D, hess);
 
   // choose two bones based on corners of bounding box
   // not final, just for now
