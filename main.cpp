@@ -63,14 +63,14 @@ int main(int argc, char *argv[]) {
   // create bone transformations matrices for each frame of animation
   // again, ideally this would be created by animator in modelling program, but the data transfer was too difficult
   std::vector<Eigen::MatrixXd> T_list;
-  for (int i = 0; i < 24; i++) {
+  for (int i = 0; i < 48; i++) {
     Eigen::Matrix34d T1 = Eigen::Matrix34d::Zero();
     T1.block<3, 3>(0, 0) = Eigen::Matrix3d::Identity();
     Eigen::Vector3d d = Eigen::Vector3d::Zero();
     d << i, 0, 0;  // displacement increases with frame, creating translation animation
     T1.block<3, 1>(0, 3) = d * 2;
     Eigen::Matrix34d T2 = Eigen::Matrix34d::Zero();
-    double angle = i * 2. * M_PI / 180;  // angle increases with frame, creating rotation animation
+    double angle = (i - 24) * 2. * M_PI / 180;  // angle increases with frame, creating rotation animation
     T2.block<3, 3>(0, 0) << 1, 0, 0,
       0, cos(angle), -sin(angle),
       0, sin(angle), cos(angle);
@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
 
   viewer.data().set_mesh(X, F);
   viewer.core().is_animating = false;
-  viewer.core().animation_max_fps = 24.;
+  viewer.core().animation_max_fps = 16.;
   viewer.data().show_lines = false;
   viewer.data().show_overlay_depth = false;
   viewer.data().set_mesh(V, F);

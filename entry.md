@@ -2,20 +2,11 @@
 
 ## Introduction
 Animating models can be very difficult task that that can require a lot of work, especially when trying to simulate real life physics in an artistic manner. When using programs to add physical effects to animations one issue is that the physics may undo the hand animation and the intent of the artist. Complementary dynamics is a system that is designed to enhance the animation while not interfering with the artists intentions. It achieves this by finding complementary displacements such that they are algebraically orthogonal to the animated displacements.
-- motivation
-  - animating is a lot of work
-  - physics based animation is hard to control artistically
-  - usually hard to combine them because physics might undo hand animation
-- complementary dynamics is a system for physics that doesn't interfere with animation
-  - does this by finding "complementary" displacements based on physics
-  - these are displacements that are algebraically orthogonal to animated displacements
-
 ## Computing Complementary Displacement
 
-### Overview?
+### Overview
 
-In short, we want to generate complementary displacements that are orthogonal to the rig displacements. To do so from a high level what would be used is newtons method to minimize the energy with constraints, where the energy is the neohookean elasticity. These would affect the rig jacobian which has calculations that would prevent allowing $\mathbf u^c_t$ from being able to undo $\mathbf u^r_t$.
-general overview of the algorithm(1-2 paragraphs maybe? Still should be fairly short)
+In short, we want to generate complementary displacements that are orthogonal to the rig displacements. To do so from a high level what would be used is newtons method to minimize the energy with constraints, where the energy is the Neohookean elasticity. These would affect the rig Jacobian which has calculations that would prevent allowing $\mathbf u^c_t$ from being able to undo $\mathbf u^r_t$.
 
 ### Minimizing Energy
 
@@ -43,7 +34,7 @@ The algorithm is essentially minimizing physical energy subject to constraints t
 $$
 \Phi_{tet} = vol_{tet} \cdot \left( C \cdot (\det(\mathbf F)^{-2/3}\cdot \text{tr}(\mathbf F^T \mathbf F) - 3) + D \cdot (\det(\mathbf F) - 1)^2 \right)
 $$
-where $C$ and $D$ are physical constants that depend on the material being modelled. In our implementation, we use values of 107143 and 428571, based on the values given in a CSC417 assignment. $\mathbf F$ is the deformation gradient of the tetrahedron, a matrix which encodes in what way the tetrahedron has been deformed.
+where $C$ and $D$ are physical constants that depend on the material being modelled. In our implementation, we use values of 107143 and 428571, based on the values given in a CSC417 assignment. $\mathbf F$ is the deformation gradient of the tetrahedron, a matrix which encodes in what way the tetrahedron has been deformed. To calculate the global energy, just sum up the energies for each tetrahedron.
 
 To calculate the gradient $d\Phi/d\mathbf u^c$, we use the chain rule and combine $d\Phi/d\mathbf F$ and $d\mathbf F/d\mathbf u^c$, which are easier to compute (though both very large formulas). Here is an outline of how we calculate $d\Phi/d\mathbf u^c$ for a single tetrahedron:
 
@@ -61,7 +52,7 @@ dphi_neo_hookean_dF(dphi, F, neohookean_C, neohookean_D);
 Eigen::Vector12d g_tet = tet_volume * B.transpose() * dphi;
 ```
 
-This is then distributed to the global gradient vector:
+Just like with energy, we sum up the gradients for each tetrahedron to get the global gradient. We do this by distributing:
 
 ```c++
 g.segment(tet(0) * 3, 3) += g_tet.segment(0, 3);
@@ -70,7 +61,7 @@ g.segment(tet(2) * 3, 3) += g_tet.segment(6, 3);
 g.segment(tet(3) * 3, 3) += g_tet.segment(9, 3);
 ```
 
-The hessian is calculated and distributed in a similar way, except it is distributed to a global sparse square matrix rather than a global dense vector.
+The hessian is calculated per-tetrahedron and distributed in a similar way, except it is distributed to a global sparse square matrix rather than a global dense vector.
 
 ### Rig Jacobian and Complementarity
 
@@ -98,7 +89,7 @@ where $w_{ij}$ is the weight of the $j^{\text{th}}$ bone on the $i^{\text{th}}$ 
 Eigen::MatrixXd v1(1, 4);
 v1.block<1, 3>(0, 0) = V.row(i);
 v1(3) = 1;
-// calculate kronecker product of identity (*) v1
+// calculate kronecker product Id (*) v1
 Eigen::MatrixXd kronecker = Eigen::MatrixXd::Zero(3, 12);
 kronecker.block<1, 4>(0, 0) = v1;
 kronecker.block<1, 4>(1, 4) = v1;

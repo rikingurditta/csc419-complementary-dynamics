@@ -79,11 +79,11 @@ void newtons_method(Eigen::MatrixXd &x0,
     block.block(0, 0, Q.rows(), Q.cols()) = Q;
     block.block(0, Q.cols(), C.cols(), C.rows()) = C.transpose();
     block.block(Q.rows(), 0, C.rows(), C.cols()) = C;
-    // solve Hd = -g
+    // solve block * (x lambda)^T = (l 0)^T
     Eigen::PartialPivLU<Eigen::MatrixXd> solver(block);
     Eigen::VectorXd sol = Eigen::VectorXd::Zero(block.cols());
     sol.head(l.size()) = l;
-    Eigen::VectorXd tmp = solver.inverse() * sol;
+    Eigen::VectorXd tmp = solver.solve(sol);
     // ignore last value to get our x value which we use to get search direction
     Eigen::VectorXd d = tmp.head(tmp.size() - 1) - x0;
     // line search for good alpha
