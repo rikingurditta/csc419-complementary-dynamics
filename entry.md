@@ -26,6 +26,12 @@ general overview of the algorithm(1-2 paragraphs maybe? Still should be fairly s
 
 ### Neohookean Elasticity
 
+The algorithm is essentially minimizing physical energy subject to constraints that uphold the artist's intent. In our implementation, our energy function is Neohookean elasticity. The formula for this energy for a single tetrahedron is
+$$
+\Phi_{tet} = vol_{tet} \cdot \left( C \cdot (\det(\mathbf F)^{-2/3}\cdot \text{tr}(\mathbf F^T \mathbf F) - 3) + D \cdot (\det(\mathbf F) - 1)^2 \right)
+$$
+where $C$ and $D$ are physical constants that depend on the material being modelled. In our implementation, we use values of 107143 and 428571, based on the values given in a CSC417 assignment.
+
 - above, we discussed minimizing the potential energy of the system
 - in practice, potential energy defined by the type of material being modelled
 - neohookean potential is for continuum solids made of elastic material
@@ -33,7 +39,7 @@ general overview of the algorithm(1-2 paragraphs maybe? Still should be fairly s
 
 ### Rig Jacobian and Complementarity
 
-The crucial part of the calculations above is the rig Jacobian $\mathbf J$. This is where the artist's animation comes into play.
+The crucial part of the algorithm is the rig Jacobian $\mathbf J$. This is where the artist's animation comes into play.
 
 Artists create animations using "rigs" that consist a (relatively small) number of parameters to control the mesh. In our case, we use linear blend skinning, which is where the artist places a number of "bones" around the mesh. Each bone influences the vertices around it by some weight (chosen by the artist), and for each vertex, the sum of bone weights adds up to 1. The artist can transform the bones, inducing a weighted average transformation on each vertex. In this setup, the parameters of the rig are affine transformations of the bones.
 
@@ -67,14 +73,6 @@ J.block<3, 12>(i * 3, j * 12) = W(i, j) * kronecker;
 ```
 
 Our derivations above are looking to optimize $\mathbf u^c$ so that $\mathbf J^T \mathbf M \mathbf u^c = \mathbf 0$. Intuitively, this ensures that $-\mathbf u^c$ does not correspond to any rig transformation, so $\mathbf u^c$ does not undo any of the artist's work.
-
-- parameters of rig are affine transformations of "bones"
-- rig function is weighted average of bone transformations
-  - maybe have a picture of this
-- rig jacobian is derivative of mapping from bone transformations to vertex displacements
-- physical interpretation of $\mathbf J^T \mathbf M \mathbf u^c = \mathbf 0$:
-  - modifying rig parameters, aka coming up with affine transformations of bones, could not produce any part of $\mathbf u^c$ (or $\mathbf u^c$)
-  - thus $\mathbf u^c$ cannot be undoing any transformation that the artist produced
 
 ## Conclusion
 

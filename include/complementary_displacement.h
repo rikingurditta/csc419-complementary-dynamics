@@ -1,5 +1,6 @@
 #include <Eigen/Core>
 #include <Eigen/Sparse>
+#include "EigenTypes.h"
 
 // Assume the input animation and simulation use the same tetrahedron mesh
 //
@@ -19,16 +20,18 @@
 //   energy(V,T,U,dt,C,D)  a function that computes the total energy of the FEM system (for doing line search)
 // Outputs:
 //   Uc                    #V by 3 complementary displacement at the current frame
-template<typename ENERGY>
 void complementary_displacement(
-  const Eigen::MatrixXd & V, 
-  const Eigen::MatrixXi & T, 
-  const Eigen::SparseMatrix<double> & M,
+  const Eigen::MatrixXd & V,
+  const Eigen::MatrixXi & T,
+  const Eigen::SparseMatrixd & M,
   const Eigen::MatrixXd & Ur,
   const Eigen::MatrixXd & UcLast,
+  const Eigen::MatrixXd & ULast,
+  const Eigen::MatrixXd & duLast,
   const Eigen::MatrixXd & J,
-  const Eigen::MatrixXd & g,
-  const Eigen::SparseMatrix<double> & H,
+  const Eigen::VectorXd & g,
+  const Eigen::SparseMatrixd & H,
   const double & dt,
-  ENERGY & energy,
+  const double neohookean_C,
+  const double neohookean_D,
   Eigen::MatrixXd & Uc);
