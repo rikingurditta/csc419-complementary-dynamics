@@ -1,6 +1,7 @@
 #include "hessian.h"
 #include "deformation_gradient.h"
 #include "dF_dU_flattened.h"
+#include <igl/volume.h>
 
 void d2phi_neo_hookean_dF2(Eigen::Matrix99d &ddw, Eigen::Ref<const Eigen::Matrix3d> F, double C, double D);
 
@@ -17,6 +18,8 @@ void hessian(
   std::vector<Eigen::Triplet<double>> tl;
   tl.reserve(144 * T.size());
   H.reserve(144 * T.size());
+  Eigen::VectorXd tet_volumes(T.rows());
+  igl::volume(V, T, tet_volumes);
   for (int t = 0; t < T.rows(); t++) {
     // get deformation gradient
     Eigen::Matrix3d F;
@@ -28,7 +31,7 @@ void hessian(
     Eigen::Matrix99d d2phi;
     d2phi_neo_hookean_dF2(d2phi, F, neohookean_C, neohookean_D);
     // calculate hessian of neohookean potential energy with respect to displacements for current tet (chain rule)
-    Eigen::Matrix1212d H_tet = B.transpose() * d2phi * B;
+    Eigen::Matrix1212d H_tet = tet_volumes(t) * B.transpose() * d2phi * B;
     // distribute to global hessian matrix
     for (int el_row = 0; el_row < 4; el_row++) {
       for (int el_col = 0; el_col < 4; el_col++) {
