@@ -1,4 +1,6 @@
 #include "complementary_displacement.h"
+#include "gradient.h"
+#include "hessian.h"
 #include "rig_jacobian.h"
 
 template<typename ENERGY>
@@ -16,8 +18,8 @@ void complementary_displacement(
   Eigen::MatrixXd & Uc){
     Eigen::MatrixXd tmp_g;
     Eigen::SparseMatrix<double> tmp_h;
-//    newtons_method(UcLast, energy, ..., ..., 10 /* max steps for now i guess lol */,
-//		   tmp_g, tmp_h);
+    newtons_method(UcLast, energy, gradient, hessian, 10, dt, Ur, UcLast, UcLast, //placeholder value for the last derivative and last U value
+		   tmp_g, tmp_h);
 }
 
 
@@ -31,19 +33,33 @@ void complementary_displacement(
 //Output: 
 //  x0 - update x0 to new value
 template<typename Objective, typename Jacobian, typename Hessian>
-double newtons_method(Eigen::MatrixXd &x0, Objective &f, Jacobian &g, Hessian &H, unsigned int maxSteps,
-                      Eigen::MatrixXd &tmp_g, Eigen::SparseMatrix<double> &tmp_H) {
+void newtons_method(Eigen::MatrixXd &x0, Objective &f, Jacobian &g, Hessian &H, unsigned int maxSteps,
+                      double &dt, Eigen::MatrixXd &Ur, Eigen::VectorXd &lastDut,
+		    Eigen::MatrixXd &lastDu, Eigen::MatrixXd &J, Eigen::MatrixXd rigJacobian,
+		      Eigen::MatrixXd &tmp_g, Eigen::SparseMatrix<double> &tmp_H) {
     // get initial gradient
     g(tmp_g, x0);
     int steps = 0;
     while (tmp_g.norm() >= 1e-8 and steps < maxSteps) {
         // get gradient and hessian of objective function
         g(tmp_g, x0);
-        H(tmp_H, x0);
+        H(tmp_H, x0); // (would be K in the pseudo code)
+	Eigen::MatrixXd Q = tmp_H + dt * dt * M;
+	Eigen::VectorXd l = -tmp_g + 1 / dt * M * ((Ur - lastDu)/ dt - lastDut);
+	Eigen::MatrixXd C = J.transpose() * M;
+	Eigen::MatrixXd block = Eigen::MatrixXd::Zero(Q.cols() + C.rows(),
+						      Q.cols() + C.rows());
+	// construct the block matrix
+	block.block(0, 0, Q.rows(), Q.cols()) = Q;
+	block.block(0, Q.cols(), C.cols(), C.rows()) = C.transpose();
+	block.block(Q.rows(), 0, C.rows(), C.cols()) = C;
         // solve Hd = -g
-        Eigen::SimplicialLLT<Eigen::SparseMatrix<double>> solver;
-        solver.compute(tmp_H);
-        Eigen::VectorXd d = solver.solve(-tmp_g);
+	Eigen::PartialPivLU<Eigen::MatrixXd> solver(block);
+	Eigen::VectorXd sol = Eigen::VectorXd::Zero(block.cols());
+	sol.head(l.size()) = l;
+	Eigen::VectorXd tmp = solver.inverse() * sol;
+	// ignore last value to get our x value which we store in d
+	Eigen::VectorXd d = tmp.head(tmp.size() - 1);
         // line search for good alpha
         double alpha = 1.;
         while (f(x0 + alpha * d) > f(x0) + 1e-8 * alpha * tmp_g.dot(d) and alpha > 1e-8) {
@@ -53,5 +69,4 @@ double newtons_method(Eigen::MatrixXd &x0, Objective &f, Jacobian &g, Hessian &H
         x0 = x0 + alpha * d;
         steps++;
     }
-    return 0.0;
 }
