@@ -4,6 +4,7 @@
 #include "energy.h"
 #include "gradient.h"
 #include "hessian.h"
+#include <iostream>
 
 template<typename Objective, typename Gradient, typename Hessian>
 void newtons_method(Eigen::MatrixXd &x0, Objective &f, Gradient &g, Hessian &H, unsigned int maxSteps, double dt,
@@ -29,12 +30,12 @@ void complementary_displacement(
   Eigen::VectorXd tmp_g;
   Eigen::SparseMatrix<double> tmp_h;
   Uc = UcLast;
-  auto curriedEnergy = [=](Eigen::MatrixXd Ut) { return energy(V, T, Ut, 0.1, neohookean_C, neohookean_D); };
+  auto curriedEnergy = [=](Eigen::MatrixXd Ut) { return energy(V, T, Ut, dt, neohookean_C, neohookean_D); };
   auto curriedGradient = [=](Eigen::MatrixXd Ut, Eigen::VectorXd &grad) {
-    gradient(V, T, Ut, 0.1, neohookean_C, neohookean_D, grad);
+    gradient(V, T, Ut, dt, neohookean_C, neohookean_D, grad);
   };
   auto curriedHessian = [=](Eigen::MatrixXd Ut, Eigen::SparseMatrixd &hess) {
-    hessian(V, T, Ut, 0.1, neohookean_C, neohookean_D, hess);
+    hessian(V, T, Ut, dt, neohookean_C, neohookean_D, hess);
   };
   newtons_method(Uc, curriedEnergy, curriedGradient, curriedHessian, 10, dt, Ur, duLast,
                  J, M, //placeholder value for the last derivative and last U value
@@ -85,8 +86,8 @@ void newtons_method(Eigen::MatrixXd &x0,
     Eigen::VectorXd sol = Eigen::VectorXd::Zero(block.cols());
     sol.head(l.size()) = l;
     Eigen::VectorXd tmp = solver.inverse() * sol;
-    // ignore last value to get our x value which we store in d
-    Eigen::VectorXd d = tmp.head(tmp.size() - 1);
+    // ignore last value to get our x value which we use to get search direction
+    Eigen::VectorXd d = tmp.head(tmp.size() - 1) - x0;
     // line search for good alpha
     double alpha = 1.;
     // TODO: double check, will also need with the Uc and Ur thing
