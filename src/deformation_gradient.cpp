@@ -3,7 +3,7 @@
 void deformation_gradient(
   const Eigen::MatrixXd & V,
   const Eigen::RowVector4i & tet,
-  const Eigen::VectorXd & U,
+  const Eigen::MatrixXd & U,
   Eigen::Matrix3d & F) {
   int v0 = tet(0);
   int v1 = tet(1);
