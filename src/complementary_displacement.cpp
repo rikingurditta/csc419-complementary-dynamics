@@ -8,7 +8,7 @@
 
 template<typename Objective, typename Gradient, typename Hessian>
 void newtons_method(Eigen::MatrixXd &x0, Objective &f, Gradient &g, Hessian &H, unsigned int maxSteps, double dt,
-                    const Eigen::MatrixXd Ur, const Eigen::MatrixXd lastDu, const Eigen::MatrixXd &J,
+                    const Eigen::MatrixXd Ur, const Eigen::MatrixXd ULast, const Eigen::MatrixXd lastDu, const Eigen::MatrixXd &J,
                     const Eigen::SparseMatrixd &M,
                     Eigen::VectorXd &tmp_g, Eigen::SparseMatrix<double> &tmp_H);
 
@@ -37,7 +37,7 @@ void complementary_displacement(
   auto curriedHessian = [=](Eigen::MatrixXd Ut, Eigen::SparseMatrixd &hess) {
     hessian(V, T, Ut, dt, neohookean_C, neohookean_D, hess);
   };
-  newtons_method(Uc, curriedEnergy, curriedGradient, curriedHessian, 10, dt, Ur, duLast, J, M, tmp_g, tmp_h);
+  newtons_method(Uc, curriedEnergy, curriedGradient, curriedHessian, 10, dt, Ur, ULast, duLast, J, M, tmp_g, tmp_h);
 }
 
 
@@ -58,6 +58,7 @@ void newtons_method(Eigen::MatrixXd &x0,
                     unsigned int maxSteps,
                     double dt,
                     const Eigen::MatrixXd Ur,
+                    const Eigen::MatrixXd ULast,
                     const Eigen::MatrixXd lastDu,
                     const Eigen::MatrixXd &J,
                     const Eigen::SparseMatrixd &M,
@@ -71,7 +72,7 @@ void newtons_method(Eigen::MatrixXd &x0,
     g(x0, tmp_g);
     H(x0, tmp_H); // (would be K in the pseudo code)
     Eigen::MatrixXd Q = tmp_H + dt * dt * M;
-    Eigen::VectorXd l = -tmp_g + 1 / dt * M * ((Ur - lastDu) / dt - lastDu);
+    Eigen::VectorXd l = -tmp_g + 1 / dt * M * ((Ur - ULast) / dt - lastDu);
     Eigen::MatrixXd C = J.transpose() * M;
     Eigen::MatrixXd block = Eigen::MatrixXd::Zero(Q.cols() + C.rows(),
                                                   Q.cols() + C.rows());

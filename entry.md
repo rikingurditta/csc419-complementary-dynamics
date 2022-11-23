@@ -27,7 +27,7 @@ where the values of $\mathbf Q, \mathbf l$ are determined due to solving the Lag
 ```c++
 Eigen::VectorXd d = x - Uc;  // search in direction towards x
 double alpha = 1.;  // search step size
-while (f(Uc + alpha * d + Ur) > f(Uc + Ur) + 1e-8 * alpha * tmp_g.dot(d) and alpha > 1e-8) {
+while (f(Uc + Ur + alpha * d) > f(Uc + Ur) + 1e-8 * alpha * tmp_g.dot(d) and alpha > 1e-8) {
     alpha = alpha * 0.5;  // scaling factor is 0.5
 }
 Uc = Uc + alpha * d;  // update Uc
